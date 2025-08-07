@@ -1,6 +1,7 @@
 package org.example.yahtzee_be.config;
 
 import org.example.yahtzee_be.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -17,18 +18,18 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, UserService userService) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,  UserService userService) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         //.requestMatchers("/public/**").permitAll() // endpoint pubblici
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
+                /*.oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .oidcUserService(request -> handleOidcUser(userService, request))
                         )
-                )
+                )*/
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults())
                 );
@@ -40,10 +41,10 @@ public class SecurityConfig {
         OidcUserService delegate = new OidcUserService();
         OidcUser oidcUser = delegate.loadUser(userRequest);
 
+        String id = oidcUser.getSubject();
         String email = oidcUser.getEmail();
 
-        userService.syncUser(email);
-
+        userService.syncUser(id, email);
         return oidcUser;
     }
 }
