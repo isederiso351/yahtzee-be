@@ -7,6 +7,9 @@ import org.example.yahtzee_be.repository.jpa.UserGameJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Repository
 public class UserGameRepository {
     @Autowired
@@ -30,5 +33,18 @@ public class UserGameRepository {
 
     public int totalCurrentPlayers(long gameId) {
         return userGameJpaRepository.countByGame_Id(gameId);
+    }
+
+    public void leaveGame(long userId, long gameId) {
+        userGameJpaRepository.removeUserGameByUser_IdAndGame_Id(userId, gameId);
+    }
+
+    public List<User> getPlayers(Long gameId) {
+        return userGameJpaRepository.getUsersByGameId(gameId);
+
+    }
+
+    public List<String> getPlayerNames(Long id) {
+        return getPlayers(id).stream().map(User::getName).toList();
     }
 }

@@ -22,6 +22,9 @@ public class User {
     @Column(unique=true, nullable=false)
     private String email;
 
+    @Column(nullable = false)
+    private String name;
+
     @Min(0)
     @Column(nullable=false)
     private double credit;

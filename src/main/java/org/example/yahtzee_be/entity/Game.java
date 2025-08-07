@@ -21,6 +21,9 @@ public class Game {
     @JoinColumn(name = "host")
     private User host;
 
+    @Enumerated(EnumType.STRING)
+    private GameStatus status = GameStatus.WAITING;
+
 
     public Game(int maxPlayers, User host, double bet) {
         this.maxPlayers = maxPlayers;

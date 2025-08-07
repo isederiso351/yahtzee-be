@@ -25,11 +25,12 @@ public class UserRepository {
         userJpaRepository.save(user);
     }
 
-    public void syncUser(String id, String email) {
-        if (!userJpaRepository.existsByKeycloackID(id)) {
+    public void syncUser(String sub, String email, String username) {
+        if (!userJpaRepository.existsByKeycloackID(sub)) {
             User user = new User();
-            user.setKeycloackID(id);
+            user.setKeycloackID(sub);
             user.setEmail(email);
+            user.setName(username);
             user.setCredit(0);
             userJpaRepository.save(user);
         }
@@ -50,4 +51,12 @@ public class UserRepository {
         Optional<User> user = userJpaRepository.getByKeycloackID(userSub);
         return user.orElseThrow(()->new UserNotFoundException("User not found"));
     }
+
+    public void addCredit(long userId, double bet) {
+        User user = getUser(userId);
+        double credit = user.getCredit();
+        user.setCredit(credit+bet);
+        userJpaRepository.save(user);
+    }
+
 }

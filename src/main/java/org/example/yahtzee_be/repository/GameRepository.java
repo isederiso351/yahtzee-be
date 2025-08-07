@@ -1,11 +1,15 @@
 package org.example.yahtzee_be.repository;
 
+import org.example.yahtzee_be.dto.GameInfoDTO;
 import org.example.yahtzee_be.entity.Game;
+import org.example.yahtzee_be.entity.GameStatus;
 import org.example.yahtzee_be.entity.User;
 import org.example.yahtzee_be.exception.GameNotFoundException;
 import org.example.yahtzee_be.exception.UserNotFoundException;
 import org.example.yahtzee_be.repository.jpa.GameJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -36,6 +40,10 @@ public class GameRepository {
         if(game.isEmpty())
             throw new GameNotFoundException("Game not found");
         return game.get();
+    }
+
+    public Page<Game> getGamesByStatus(GameStatus status, Pageable pageable) {
+        return gameJpaRepository.findByStatus(status, pageable);
     }
 
     public int getMaxPlayers(long gameId) {
