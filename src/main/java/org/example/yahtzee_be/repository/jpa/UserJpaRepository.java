@@ -12,4 +12,10 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
     double getCreditByEmail(String email);
 
     Optional<User> getByEmail(String email);
+
+    boolean existsByKeycloackID(String id);
+
+    Optional<User> getByKeycloackID(String id);
+
+    Optional<User> getUserById(long id);
 }

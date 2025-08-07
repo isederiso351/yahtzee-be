@@ -2,6 +2,7 @@ package org.example.yahtzee_be.repository;
 
 import org.example.yahtzee_be.entity.User;
 import org.example.yahtzee_be.exception.UserException;
+import org.example.yahtzee_be.exception.UserNotFoundException;
 import org.example.yahtzee_be.repository.jpa.UserJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -15,8 +16,8 @@ public class UserRepository {
     @Autowired
     private UserJpaRepository userJpaRepository;
 
-    public void removeCredit(String userEmail, double bet) {
-        User user = getUser(userEmail);
+    public void removeCredit(long playerId, double bet) {
+        User user = getUser(playerId);
         double credit = user.getCredit();
         if(credit < bet)
             throw new UserException("User credit is too low");
@@ -24,10 +25,29 @@ public class UserRepository {
         userJpaRepository.save(user);
     }
 
-    public User getUser(String userEmail) {
-        Optional<User> user = userJpaRepository.getByEmail(userEmail);
+    public void syncUser(String id, String email) {
+        if (!userJpaRepository.existsByKeycloackID(id)) {
+            User user = new User();
+            user.setKeycloackID(id);
+            user.setEmail(email);
+            user.setCredit(0);
+            userJpaRepository.save(user);
+        }
+    }
+
+    public long getIdBySub(String hostSub) {
+        return getUserBySub(hostSub).getId();
+    }
+
+    public User getUser(long id) {
+        Optional<User> user = userJpaRepository.getUserById(id);
         if(user.isEmpty())
-            throw new UserException("User not found");
+            throw new UserNotFoundException("User not found");
         return user.get();
+    }
+
+    private User getUserBySub(String userSub) {
+        Optional<User> user = userJpaRepository.getByKeycloackID(userSub);
+        return user.orElseThrow(()->new UserNotFoundException("User not found"));
     }
 }

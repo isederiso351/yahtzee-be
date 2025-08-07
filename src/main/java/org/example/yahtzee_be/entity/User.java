@@ -14,13 +14,13 @@ public class User {
     @Id @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    //@Email
+    @Column(nullable = false, unique = true)
+    private String keycloackID;
+
+    @Email
     @NotBlank
     @Column(unique=true, nullable=false)
     private String email;
-
-    @Column(nullable=false)
-    private String password;
 
     @Min(0)
     @Column(nullable=false)

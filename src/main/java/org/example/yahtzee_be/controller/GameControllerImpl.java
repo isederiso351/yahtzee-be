@@ -4,6 +4,9 @@ import org.example.yahtzee_be.dto.GameInfoDTO;
 import org.example.yahtzee_be.dto.GameRequest;
 import org.example.yahtzee_be.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,8 +36,8 @@ public class GameControllerImpl implements GameController {
     }
 
     @Override
-    public void addGame(GameRequest gameRequest) {
-        //TODO recuperare host dall'utente autenticato
-        gameService.addGame(gameRequest.getMax_players(), gameRequest.getBet(), "Mario");
+    public void createGame(GameRequest gameRequest, Jwt jwt) {
+        String hostSub = jwt.getSubject();
+        gameService.createGame(hostSub,gameRequest.getMax_players(), gameRequest.getBet());
     }
 }
