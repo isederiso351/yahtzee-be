@@ -1,4 +1,4 @@
-package org.example.yahtzee_be.entity;
+package org.example.yahtzee_be.model;
 
 public enum GameStatus {
     COMPLETED,

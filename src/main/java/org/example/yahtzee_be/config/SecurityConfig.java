@@ -36,7 +36,7 @@ public class SecurityConfig {
 
         return http.build();
     }
-
+/*
     private OidcUser handleOidcUser(UserService userService, OidcUserRequest userRequest) {
         OidcUserService delegate = new OidcUserService();
         OidcUser oidcUser = delegate.loadUser(userRequest);
@@ -46,5 +46,5 @@ public class SecurityConfig {
 
         userService.syncUser(id, email);
         return oidcUser;
-    }
+    }*/
 }

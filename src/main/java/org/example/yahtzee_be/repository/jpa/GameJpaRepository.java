@@ -1,7 +1,7 @@
 package org.example.yahtzee_be.repository.jpa;
 
 import org.example.yahtzee_be.entity.Game;
-import org.example.yahtzee_be.entity.GameStatus;
+import org.example.yahtzee_be.model.GameStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,11 +1,9 @@
 package org.example.yahtzee_be.repository;
 
-import org.example.yahtzee_be.dto.GameInfoDTO;
 import org.example.yahtzee_be.entity.Game;
-import org.example.yahtzee_be.entity.GameStatus;
+import org.example.yahtzee_be.model.GameStatus;
 import org.example.yahtzee_be.entity.User;
 import org.example.yahtzee_be.exception.GameNotFoundException;
-import org.example.yahtzee_be.exception.UserNotFoundException;
 import org.example.yahtzee_be.repository.jpa.GameJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

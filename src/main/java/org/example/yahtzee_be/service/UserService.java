@@ -9,8 +9,4 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    public void syncUser(String id, String email) {
-        userRepository.syncUser(id, email);
-    }
 }

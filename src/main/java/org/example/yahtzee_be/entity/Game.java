@@ -1,9 +1,9 @@
 package org.example.yahtzee_be.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.yahtzee_be.model.GameStatus;
 
 @Entity
 @Data

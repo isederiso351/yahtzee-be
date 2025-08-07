@@ -3,7 +3,7 @@ package org.example.yahtzee_be.service;
 import org.example.yahtzee_be.config.GameProperties;
 import org.example.yahtzee_be.dto.GameInfoDTO;
 import org.example.yahtzee_be.entity.Game;
-import org.example.yahtzee_be.entity.GameStatus;
+import org.example.yahtzee_be.model.GameStatus;
 import org.example.yahtzee_be.exception.GameException;
 import org.example.yahtzee_be.repository.GameRepository;
 import org.example.yahtzee_be.repository.UserGameRepository;
@@ -13,8 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class GameService {
