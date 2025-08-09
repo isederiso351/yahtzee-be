@@ -22,11 +22,11 @@ public class GameRepository {
     private UserRepository userRepository;
 
 
-    public long createGame(int maxPlayers, long hostId, double bet) {
+    public Game createGame(int maxPlayers, long hostId, double bet) {
         User host = userRepository.getUser(hostId);
         Game game = new Game(maxPlayers, host, bet);
         game = gameJpaRepository.save(game);
-        return game.getId();
+        return game;
     }
 
     public double getBet(long gameId) {

@@ -3,12 +3,15 @@ package org.example.yahtzee_be.service;
 import org.example.yahtzee_be.config.GameProperties;
 import org.example.yahtzee_be.dto.GameInfoDTO;
 import org.example.yahtzee_be.entity.Game;
+import org.example.yahtzee_be.event.GameEventType;
+import org.example.yahtzee_be.event.GameEvent;
 import org.example.yahtzee_be.model.GameStatus;
 import org.example.yahtzee_be.exception.GameException;
 import org.example.yahtzee_be.repository.GameRepository;
 import org.example.yahtzee_be.repository.UserGameRepository;
 import org.example.yahtzee_be.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,15 +29,20 @@ public class GameService {
     @Autowired
     private UserGameRepository userGameRepository;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     @Transactional
     public void createGame(String hostSub, int maxPlayers, double bet) {
         if(maxPlayers > gameProperties.getMaxPlayers()) {
             throw new IllegalArgumentException("Max player count exceeded");
         }
         long hostId = userRepository.getIdBySub(hostSub);
+        Game game = gameRepository.createGame(maxPlayers, hostId, bet);
 
-        long gameId = gameRepository.createGame(maxPlayers, hostId, bet);
-        joinGame(hostSub, gameId);
+        eventPublisher.publishEvent(new GameEvent(GameEventType.CREATED, game));
+
+        joinGame(hostSub, game.getId());
 
     }
 
@@ -53,8 +61,10 @@ public class GameService {
 
         double bet = gameRepository.getBet(gameId);
         userRepository.removeCredit(playerId, bet);
-
         userGameRepository.joinGame(playerId, gameId);
+
+        Game game = gameRepository.getGame(gameId);
+        eventPublisher.publishEvent(new GameEvent(GameEventType.UPDATED, game));
     }
 
     @Transactional
@@ -76,6 +86,19 @@ public class GameService {
         }
 
         Page<Game> games = gameRepository.getGamesByStatus(status, pageable);
-        return games.map(game->GameInfoDTO.fromEntity(game,userGameRepository.getPlayerNames(game.getId())));
+        return games.map(this::toDTO);
     }
+
+    public GameInfoDTO toDTO(Game game) {
+        GameInfoDTO gameInfoDTO = new GameInfoDTO();
+        gameInfoDTO.setGameId(game.getId());
+        gameInfoDTO.setHost(game.getHost().getName());
+        gameInfoDTO.setStatus(game.getStatus());
+        gameInfoDTO.setBet(game.getBet());
+        gameInfoDTO.setMax_players(game.getMaxPlayers());
+        gameInfoDTO.setUsers(userGameRepository.getPlayerNames(game.getId()));
+        return gameInfoDTO;
+    }
+
+
 }

@@ -16,13 +16,4 @@ public class GameInfoDTO {
     private int max_players;
     private double bet;
 
-    public static GameInfoDTO fromEntity(Game game, List<String> users) {
-        GameInfoDTO gameInfoDTO = new GameInfoDTO();
-        gameInfoDTO.gameId = game.getId();
-        gameInfoDTO.status = game.getStatus();
-        gameInfoDTO.host = game.getHost().getName();
-        gameInfoDTO.max_players = game.getMaxPlayers();
-        gameInfoDTO.bet = game.getBet();
-        return gameInfoDTO;
-    }
 }
