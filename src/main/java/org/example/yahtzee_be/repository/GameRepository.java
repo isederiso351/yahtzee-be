@@ -47,4 +47,12 @@ public class GameRepository {
     public int getMaxPlayers(long gameId) {
         return getGame(gameId).getMaxPlayers();
     }
+
+    public Game getGameForUpdate(long gameId) {
+        Optional<Game> game = gameJpaRepository.findByIdForUpdate(gameId);
+        if(game.isEmpty()){
+            throw new GameNotFoundException("Game not found");
+        }
+        return game.get();
+    }
 }

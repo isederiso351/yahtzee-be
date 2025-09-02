@@ -1,10 +1,12 @@
 package org.example.yahtzee_be.repository.jpa;
 
+import jakarta.persistence.LockModeType;
 import org.example.yahtzee_be.entity.Game;
 import org.example.yahtzee_be.model.GameStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,4 +22,8 @@ public interface GameJpaRepository extends JpaRepository<Game, Long> {
     Optional<Game> getGameById(Long gameId);
 
     Page<Game> findByStatus(GameStatus status, Pageable pageable);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT g FROM Game g WHERE g.id = :gameId")
+    Optional<Game> findByIdForUpdate(@Param("gameId")long gameId);
 }

@@ -22,29 +22,13 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        //.requestMatchers("/public/**").permitAll() // endpoint pubblici
+                        .requestMatchers("/ws/**").permitAll() // endpoint pubblici
                         .anyRequest().authenticated()
                 )
-                /*.oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .oidcUserService(request -> handleOidcUser(userService, request))
-                        )
-                )*/
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults())
                 );
 
         return http.build();
     }
-/*
-    private OidcUser handleOidcUser(UserService userService, OidcUserRequest userRequest) {
-        OidcUserService delegate = new OidcUserService();
-        OidcUser oidcUser = delegate.loadUser(userRequest);
-
-        String id = oidcUser.getSubject();
-        String email = oidcUser.getEmail();
-
-        userService.syncUser(id, email);
-        return oidcUser;
-    }*/
 }

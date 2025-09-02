@@ -53,24 +53,24 @@ public class GameService {
         if(userGameRepository.isUserInGame(playerId, gameId)){
             throw new GameException("User is already in the game");
         }
-        int maxPlayers = gameRepository.getMaxPlayers(gameId);
+        Game game = gameRepository.getGameForUpdate(gameId);
+
         int currPlayers = userGameRepository.totalCurrentPlayers(gameId);
-        if(currPlayers >= maxPlayers) {
+        if(currPlayers >= game.getMaxPlayers()) {
             throw new GameException("Game is full");
         }
 
-        double bet = gameRepository.getBet(gameId);
+        double bet = game.getBet();
         userRepository.removeCredit(playerId, bet);
         userGameRepository.joinGame(playerId, gameId);
 
-        Game game = gameRepository.getGame(gameId);
         eventPublisher.publishEvent(new GameEvent(GameEventType.UPDATED, game));
     }
 
     @Transactional
     public void leaveGame(String userSub, long gameId) {
         long userId = userRepository.getIdBySub(userSub);
-        if(!userGameRepository.isUserInGame(gameId, userId)) {
+        if(!userGameRepository.isUserInGame(userId, gameId)) {
             throw new GameException("User is not in the game");
         }
 
