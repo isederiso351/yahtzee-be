@@ -5,12 +5,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.yahtzee_be.repository.UserRepository;
+import org.example.yahtzee_be.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -19,13 +21,10 @@ import java.io.IOException;
 public class JwtUserSynchronizationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -36,7 +35,8 @@ public class JwtUserSynchronizationFilter extends OncePerRequestFilter {
             String email = jwt.getClaimAsString("email");
             String username = jwt.getClaimAsString("preferred_username");
 
-            userRepository.syncUser(sub, email, username);
+            userService.syncUser(sub, email, username);
+
         }
 
         filterChain.doFilter(request, response);
