@@ -20,7 +20,8 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
     boolean existsByKeycloackID(String id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<User> getByKeycloackID(String id);
+    @Query("select u from User u where u.keycloackID = :keycloackId")
+    Optional<User> getByKeycloackIDLock(@Param("keycloackId")String id);
 
     Optional<User> getUserById(long id);
 }

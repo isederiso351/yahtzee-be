@@ -27,7 +27,7 @@ public class UserRepository {
 
     public void syncUser(String sub, String email, String username) {
         try {
-            Optional<User> existingUser = userJpaRepository.getByKeycloackID(sub);
+            Optional<User> existingUser = userJpaRepository.getByKeycloackIDLock(sub);
 
             if (existingUser.isPresent()) {
                 return;
@@ -58,7 +58,7 @@ public class UserRepository {
     }
 
     public User getUserBySub(String userSub) {
-        Optional<User> user = userJpaRepository.getByKeycloackID(userSub);
+        Optional<User> user = userJpaRepository.getByKeycloackIDLock(userSub);
         return user.orElseThrow(()->new UserNotFoundException("User not found"));
     }
 

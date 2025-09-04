@@ -24,7 +24,7 @@ public interface GameController {
     void leaveGame(@PathVariable long gameId, @AuthenticationPrincipal Jwt jwt);
 
     @PostMapping("/create")
-    void createGame(@RequestBody @Valid GameRequest gameRequest, @AuthenticationPrincipal Jwt jwt);
+    GameInfoDTO createGame(@RequestBody @Valid GameRequest gameRequest, @AuthenticationPrincipal Jwt jwt);
 
 
 }

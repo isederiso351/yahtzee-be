@@ -36,8 +36,8 @@ public class GameControllerImpl implements GameController {
     }
 
     @Override
-    public void createGame(GameRequest gameRequest, Jwt jwt) {
+    public GameInfoDTO createGame(GameRequest gameRequest, Jwt jwt) {
         String hostSub = jwt.getSubject();
-        gameService.createGame(hostSub,gameRequest.getMax_players(), gameRequest.getBet());
+        return gameService.createGame(hostSub,gameRequest.getMax_players(), gameRequest.getBet());
     }
 }

@@ -33,7 +33,7 @@ public class GameService {
     private ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public void createGame(String hostSub, int maxPlayers, double bet) {
+    public GameInfoDTO createGame(String hostSub, int maxPlayers, double bet) {
         if(maxPlayers > gameProperties.getMaxPlayers()) {
             throw new IllegalArgumentException("Max player count exceeded");
         }
@@ -43,7 +43,7 @@ public class GameService {
         eventPublisher.publishEvent(new GameEvent(GameEventType.CREATED, game));
 
         joinGame(hostSub, game.getId());
-
+        return toDTO(game);
     }
 
     @Transactional
