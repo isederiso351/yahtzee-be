@@ -3,8 +3,10 @@ package org.example.yahtzee_be.service;
 import org.example.yahtzee_be.config.GameProperties;
 import org.example.yahtzee_be.dto.GameInfoDTO;
 import org.example.yahtzee_be.entity.Game;
+import org.example.yahtzee_be.entity.User;
 import org.example.yahtzee_be.event.GameEventType;
 import org.example.yahtzee_be.event.GameEvent;
+import org.example.yahtzee_be.event.PlayerJoinedEvent;
 import org.example.yahtzee_be.model.GameStatus;
 import org.example.yahtzee_be.exception.GameException;
 import org.example.yahtzee_be.repository.GameRepository;
@@ -48,9 +50,9 @@ public class GameService {
 
     @Transactional
     public void joinGame(String playerSub, long gameId) {
-        long playerId = userRepository.getIdBySub(playerSub);
+        User user = userRepository.getUserBySub(playerSub);
 
-        if(userGameRepository.isUserInGame(playerId, gameId)){
+        if(userGameRepository.isUserInGame(user.getId(), gameId)){
             throw new GameException("User is already in the game");
         }
         Game game = gameRepository.getGameForUpdate(gameId);
@@ -61,10 +63,11 @@ public class GameService {
         }
 
         double bet = game.getBet();
-        userRepository.removeCredit(playerId, bet);
-        userGameRepository.joinGame(playerId, gameId);
+        userRepository.removeCredit(user.getId(), bet);
+        userGameRepository.joinGame(user.getId(), gameId);
 
         eventPublisher.publishEvent(new GameEvent(GameEventType.UPDATED, game));
+        eventPublisher.publishEvent(new PlayerJoinedEvent(game,user.getName()));
     }
 
     @Transactional
@@ -80,6 +83,7 @@ public class GameService {
         userGameRepository.leaveGame(userId, gameId);
     }
 
+    @Transactional(readOnly = true)
     public Page<GameInfoDTO> getGames(GameStatus status, Pageable pageable) {
         if(status == null) {
             throw new IllegalArgumentException("Status is null");
@@ -100,5 +104,9 @@ public class GameService {
         return gameInfoDTO;
     }
 
-
+    @Transactional(readOnly = true)
+    public GameInfoDTO getGame(long gameId) {
+        Game game = gameRepository.getGame(gameId);
+        return toDTO(game);
+    }
 }

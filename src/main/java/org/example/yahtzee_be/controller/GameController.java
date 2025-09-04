@@ -26,5 +26,8 @@ public interface GameController {
     @PostMapping("/create")
     GameInfoDTO createGame(@RequestBody @Valid GameRequest gameRequest, @AuthenticationPrincipal Jwt jwt);
 
+    @GetMapping("/{gameId}")
+    GameInfoDTO getGame(@PathVariable long gameId);
+
 
 }

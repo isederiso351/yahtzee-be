@@ -40,4 +40,9 @@ public class GameControllerImpl implements GameController {
         String hostSub = jwt.getSubject();
         return gameService.createGame(hostSub,gameRequest.getMax_players(), gameRequest.getBet());
     }
+
+    @Override
+    public GameInfoDTO getGame(long gameId) {
+        return gameService.getGame(gameId);
+    }
 }

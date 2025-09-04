@@ -18,6 +18,17 @@ public class EventListener {
             case GameEventType.CREATED -> webSocketService.sendGameCreated(event.getGame());
             case GameEventType.UPDATED -> webSocketService.sendGameUpdated(event.getGame());
             case GameEventType.DELETED -> webSocketService.sendGameDeleted(event.getGame());
+            case GameEventType.JOINED -> {
+                PlayerJoinedEvent playerJoinedEvent = (PlayerJoinedEvent) event;
+                webSocketService.sendPlayerJoined(event.getGame(),playerJoinedEvent.getPlayerName());
+            }
+            case GameEventType.ROLLED -> {
+                RolledDiceEvent rolledDiceEvent = (RolledDiceEvent) event;
+                webSocketService.sendRolledDice(event.getGame(), rolledDiceEvent.getPlayerName(), rolledDiceEvent.getDiceResult());
+            }
+            case GameEventType.STARTED -> {
+                webSocketService.sendGameStarted(event.getGame());
+            }
         }
     }
 }

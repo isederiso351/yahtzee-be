@@ -1,10 +1,8 @@
 package org.example.yahtzee_be.service;
 
-import lombok.RequiredArgsConstructor;
-import org.example.yahtzee_be.dto.GameEventMessage;
-import org.example.yahtzee_be.dto.GameInfoDTO;
+import org.example.yahtzee_be.dto.GameHomeEventMessage;
+import org.example.yahtzee_be.dto.GameRoomEventMessage;
 import org.example.yahtzee_be.entity.Game;
-import org.example.yahtzee_be.event.GameEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,19 +15,37 @@ public class WebSocketService {
     @Autowired
     private GameService gameService;
 
-    private void sendEvent(GameEventMessage message) {
+    private void sendGlobalEvent(GameHomeEventMessage message) {
         messagingTemplate.convertAndSend("/topic/games", message);
     }
 
+    private void sendGameSpecificEvent(Long gameId, GameRoomEventMessage message) {
+        messagingTemplate.convertAndSend("/topic/game/" + gameId, message);
+    }
+
     public void sendGameCreated(Game game) {
-        sendEvent(new GameEventMessage("CREATED", gameService.toDTO(game), null));
+        sendGlobalEvent(new GameHomeEventMessage("CREATED", gameService.toDTO(game), null));
     }
 
     public void sendGameUpdated(Game game) {
-        sendEvent(new GameEventMessage("UPDATED", gameService.toDTO(game), null));
+        sendGlobalEvent(new GameHomeEventMessage("UPDATED", gameService.toDTO(game), null));
     }
 
     public void sendGameDeleted(Game game) {
-        sendEvent(new GameEventMessage("DELETED", null, game.getId()));
+        sendGlobalEvent(new GameHomeEventMessage("DELETED", null, game.getId()));
+    }
+
+    public void sendPlayerJoined(Game game, String playerName) {
+        sendGameUpdated(game);
+        sendGameSpecificEvent(game.getId(), new GameRoomEventMessage("PLAYER_JOINED", gameService.toDTO(game), playerName, null));
+    }
+
+    public void sendRolledDice(Game game, String playerName, String diceResult) {
+        sendGameSpecificEvent(game.getId(), new GameRoomEventMessage("DICE_ROLLED", gameService.toDTO(game), playerName, diceResult));
+    }
+
+    public void sendGameStarted(Game game) {
+        sendGameUpdated(game);
+        sendGameSpecificEvent(game.getId(), new GameRoomEventMessage("GAME_STARTED", gameService.toDTO(game), null, null));
     }
 }

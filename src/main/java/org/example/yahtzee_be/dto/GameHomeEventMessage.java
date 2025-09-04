@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GameEventMessage {
+public class GameHomeEventMessage {
     private String type; // CREATED, UPDATED, DELETED
     private GameInfoDTO game; // per CREATED/UPDATED
     private Long gameId;      // per DELETED
