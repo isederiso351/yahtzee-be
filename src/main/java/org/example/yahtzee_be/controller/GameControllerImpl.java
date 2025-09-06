@@ -45,4 +45,9 @@ public class GameControllerImpl implements GameController {
     public GameInfoDTO getGame(long gameId) {
         return gameService.getGame(gameId);
     }
+
+    @Override
+    public void startGame(long gameId, Jwt jwt) {
+        gameService.startGame(jwt.getSubject(), gameId);
+    }
 }
