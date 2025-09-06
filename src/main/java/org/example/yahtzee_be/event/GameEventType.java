@@ -1,5 +1,5 @@
 package org.example.yahtzee_be.event;
 
 public enum GameEventType {
-    CREATED, UPDATED, DELETED, JOINED, STARTED, ROLLED
+    UPDATED, JOINED, STARTED, ROLLED, COMPLETED
 }

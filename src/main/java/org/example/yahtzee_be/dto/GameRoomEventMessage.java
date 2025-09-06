@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GameRoomEventMessage {
-    private String type; //PLAYER_JOINED, GAME_STARTED, DICE_ROLLED
+    private String type; //PLAYER_JOINED, GAME_STARTED, DICE_ROLLED, GAME_COMPLETED
     private GameInfoDTO game;
-    private String playerName; //Event specific
-    private String diceResult;
 }

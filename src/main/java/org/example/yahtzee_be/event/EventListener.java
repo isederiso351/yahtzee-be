@@ -15,19 +15,22 @@ public class EventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleGameEvent(GameEvent event) {
         switch (event.getType()) {
-            case GameEventType.CREATED -> webSocketService.sendGameCreated(event.getGame());
-            case GameEventType.UPDATED -> webSocketService.sendGameUpdated(event.getGame());
-            case GameEventType.DELETED -> webSocketService.sendGameDeleted(event.getGame());
+            case GameEventType.UPDATED->{
+                webSocketService.sendHomeEvent();
+            }
             case GameEventType.JOINED -> {
-                PlayerJoinedEvent playerJoinedEvent = (PlayerJoinedEvent) event;
-                webSocketService.sendPlayerJoined(event.getGame(),playerJoinedEvent.getPlayerName());
+                webSocketService.sendPlayerJoined(event.getGame());
+                webSocketService.sendHomeEvent();
             }
             case GameEventType.ROLLED -> {
-                RolledDiceEvent rolledDiceEvent = (RolledDiceEvent) event;
-                webSocketService.sendRolledDice(event.getGame(), rolledDiceEvent.getPlayerName(), rolledDiceEvent.getDiceResult());
+                webSocketService.sendRolledDice(event.getGame());
             }
             case GameEventType.STARTED -> {
                 webSocketService.sendGameStarted(event.getGame());
+                webSocketService.sendHomeEvent();
+            }
+            case GameEventType.COMPLETED -> {
+                webSocketService.sendGameCompleted(event.getGame());
             }
         }
     }
