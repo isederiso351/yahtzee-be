@@ -55,4 +55,11 @@ public class GameRepository {
         }
         return game.get();
     }
+
+    public Game updateGameStatus(long gameId, GameStatus gameStatus) {
+        Game game = getGameForUpdate(gameId);
+        game.setStatus(gameStatus);
+        gameJpaRepository.save(game);
+        return game;
+    }
 }
