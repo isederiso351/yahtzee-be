@@ -33,7 +33,6 @@ public class User {
     @Column(nullable = false, unique=true)
     private String name;
 
-    @Min(0)
     @Column(nullable=false)
-    private double credit;
+    private @Min(0) long credit;
 }

@@ -15,7 +15,7 @@ public class Game {
 
     private int maxPlayers;
 
-    private double bet;
+    private long bet;
 
     @ManyToOne
     @JoinColumn(name = "host")
@@ -25,7 +25,7 @@ public class Game {
     private GameStatus status = GameStatus.WAITING;
 
 
-    public Game(int maxPlayers, User host, double bet) {
+    public Game(int maxPlayers, User host, long bet) {
         this.maxPlayers = maxPlayers;
         this.bet = bet;
         this.host = host;

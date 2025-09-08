@@ -14,4 +14,8 @@ public class GameProperties {
 
     @Min(1)
     private long maxPlayers=99;
+
+    private long firstAccessCredit=500;
+
+    private long dailyBonus=50;
 }

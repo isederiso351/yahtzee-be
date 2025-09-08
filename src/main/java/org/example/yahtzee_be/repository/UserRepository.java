@@ -76,9 +76,9 @@ public class UserRepository {
         return user.orElseThrow(()->new UserNotFoundException("User not found"));
     }
 
-    public void addCredit(String sub, double amount) {
+    public void addCredit(String sub, long amount) {
         User user = getUserBySub(sub);
-        double credit = user.getCredit();
+        long credit = user.getCredit();
         user.setCredit(credit+amount);
     }
 

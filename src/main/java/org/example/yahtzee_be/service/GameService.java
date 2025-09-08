@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +51,7 @@ public class GameService {
     private Random random = new Random();
 
     @Transactional
-    public GameInfoDTO createGame(String hostSub, int maxPlayers, double bet) {
+    public GameInfoDTO createGame(String hostSub, int maxPlayers, long bet) {
         if(maxPlayers > gameProperties.getMaxPlayers()) {
             throw new IllegalArgumentException("Max player count exceeded");
         }
@@ -79,7 +78,7 @@ public class GameService {
             throw new GameException("Game is full");
         }
 
-        double bet = game.getBet();
+        long bet = game.getBet();
         user.setCredit(user.getCredit() - bet);
         System.out.println("rimossi crediti");
         userGameRepository.joinGame(user.getId(), gameId);
@@ -144,15 +143,13 @@ public class GameService {
         }
 
         // Tira i dadi per tutti i giocatori selezionati
-        Map<String, Integer> diceResults = new HashMap<>();
         for(User player : playersToRoll) {
             int diceValue = rollDice();
             DiceResult diceResult = new DiceResult(game, player, diceValue, currentRoll);
             diceResultRepository.save(diceResult);
-            diceResults.put(player.getName(), diceValue);
         }
 
-        // Invia l'evento con i risultati dei dadi
+        // Invia l'evento
         eventPublisher.publishEvent(new GameEvent(GameEventType.ROLLED, game));
 
         self.checkForWinner(game, currentRoll, playersToRoll);
@@ -178,7 +175,7 @@ public class GameService {
             game = gameRepository.updateGameStatus(game.getId(), GameStatus.COMPLETED);
 
             // Assegna il premio al vincitore
-            double totalPot = game.getBet() * userGameRepository.totalCurrentPlayers(game.getId());
+            long totalPot = game.getBet() * userGameRepository.totalCurrentPlayers(game.getId());
             userRepository.addCredit(winner.getKeycloackID(), totalPot);
 
             // Invia evento game completed
