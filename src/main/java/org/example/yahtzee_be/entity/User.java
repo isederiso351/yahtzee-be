@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(name = "\"user\"")
@@ -16,6 +18,12 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String keycloackID;
+
+    @Column(nullable = false, name = "last_bonus_credit")
+    private LocalDateTime lastBonusCredit;
+
+    @Column(nullable = false)
+    private boolean active=false;
 
     @Email
     @NotBlank

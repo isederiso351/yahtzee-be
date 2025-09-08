@@ -20,9 +20,6 @@ public interface GameController {
     @PostMapping("/{gameId}/join")
     void joinGame(@PathVariable long gameId, @AuthenticationPrincipal Jwt jwt);
 
-    @PostMapping("/{gameId}/leave")
-    void leaveGame(@PathVariable long gameId, @AuthenticationPrincipal Jwt jwt);
-
     @PostMapping("/create")
     GameInfoDTO createGame(@RequestBody @Valid GameRequest gameRequest, @AuthenticationPrincipal Jwt jwt);
 

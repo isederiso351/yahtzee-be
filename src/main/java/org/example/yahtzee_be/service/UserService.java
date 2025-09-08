@@ -1,9 +1,14 @@
 package org.example.yahtzee_be.service;
 
+import org.example.yahtzee_be.entity.User;
 import org.example.yahtzee_be.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 public class UserService {
@@ -11,13 +16,31 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public double getUserCredit(String userSub) {
         return userRepository.getUserBySub(userSub).getCredit();
     }
 
-    @Transactional
-    public void syncUser(String sub, String email, String username) {
-        userRepository.syncUser(sub,email,username);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void syncUser(Jwt jwt) {
+        userRepository.syncUser(jwt);
+
+        User user = userRepository.getUserBySub(jwt.getSubject());
+        checkFirstBonus(user);
+        checkDailyBonus(user);
+    }
+
+    private void checkFirstBonus(User user) {
+        if(!user.isActive()){
+            System.out.println("first bonus not active");
+            user.setCredit(500);
+            user.setActive(true);
+        }
+    }
+
+    private void checkDailyBonus(User user) {
+        if(user.getLastBonusCredit().isBefore(LocalDateTime.now().minusDays(1))){
+            user.setCredit(user.getCredit() +100);
+        }
     }
 }

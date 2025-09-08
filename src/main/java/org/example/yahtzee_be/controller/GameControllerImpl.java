@@ -4,6 +4,7 @@ import org.example.yahtzee_be.dto.GameInfoDTO;
 import org.example.yahtzee_be.dto.GameRequest;
 import org.example.yahtzee_be.model.GameStatus;
 import org.example.yahtzee_be.service.GameService;
+import org.example.yahtzee_be.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,9 @@ public class GameControllerImpl implements GameController {
     @Autowired
     private GameService gameService;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public Page<GameInfoDTO> getGames(GameStatus status, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -27,18 +31,14 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public void joinGame(long gameId, Jwt jwt) {
+        userService.syncUser(jwt);
         gameService.joinGame(jwt.getSubject(), gameId);
     }
 
     @Override
-    public void leaveGame(long gameId, Jwt jwt) {
-        gameService.leaveGame(jwt.getSubject(), gameId);
-    }
-
-    @Override
     public GameInfoDTO createGame(GameRequest gameRequest, Jwt jwt) {
-        String hostSub = jwt.getSubject();
-        return gameService.createGame(hostSub,gameRequest.getMax_players(), gameRequest.getBet());
+        userService.syncUser(jwt);
+        return gameService.createGame(jwt.getSubject(),gameRequest.getMax_players(), gameRequest.getBet());
     }
 
     @Override
@@ -48,6 +48,7 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public void startGame(long gameId, Jwt jwt) {
+        userService.syncUser(jwt);
         gameService.startGame(jwt.getSubject(), gameId);
     }
 }

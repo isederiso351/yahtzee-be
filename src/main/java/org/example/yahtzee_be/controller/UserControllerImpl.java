@@ -15,6 +15,7 @@ public class UserControllerImpl implements UserController {
 
     @Override
     public double getCredit(Jwt jwt){
+        userService.syncUser(jwt);
         return userService.getUserCredit(jwt.getSubject());
     }
 

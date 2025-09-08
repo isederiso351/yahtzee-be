@@ -4,9 +4,14 @@ import org.example.yahtzee_be.entity.User;
 import org.example.yahtzee_be.exception.UserException;
 import org.example.yahtzee_be.exception.UserNotFoundException;
 import org.example.yahtzee_be.repository.jpa.UserJpaRepository;
+import org.hibernate.annotations.Synchronize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 
@@ -16,34 +21,43 @@ public class UserRepository {
     @Autowired
     private UserJpaRepository userJpaRepository;
 
-    public void removeCredit(long playerId, double bet) {
-        User user = getUser(playerId);
-        double credit = user.getCredit();
-        if(credit < bet)
-            throw new UserException("User credit is too low");
-        user.setCredit(credit-bet);
-        userJpaRepository.save(user);
+
+    public void syncUser(Jwt jwt){
+        Optional<User> user = userJpaRepository.getByKeycloackIDLock(jwt.getSubject());
+        if(user.isPresent()){
+            return;
+        }
+        User newUser = new User();
+        newUser.setKeycloackID(jwt.getSubject());
+        newUser.setEmail(jwt.getClaim("email"));
+        newUser.setName(jwt.getClaim("preferred_username"));
+        newUser.setCredit(500);
+        newUser.setLastBonusCredit(LocalDateTime.now());
+        userJpaRepository.save(newUser);
     }
 
-    public void syncUser(String sub, String email, String username) {
-        try {
-            Optional<User> existingUser = userJpaRepository.getByKeycloackIDLock(sub);
+    public void saveUserIfNotExists(String sub, String email, String username) {
+            try {
+                if(userJpaRepository.existsByKeycloackID(sub)){
+                    return;
+                }
 
-            if (existingUser.isPresent()) {
-                return;
+                // Crea nuovo utente
+                User newUser = new User();
+                newUser.setKeycloackID(sub);
+                newUser.setEmail(email);
+                newUser.setName(username);
+                newUser.setCredit(500);
+                newUser.setLastBonusCredit(LocalDateTime.now());
+                userJpaRepository.insertUserIfNotExists(sub,email,username,500);
+                userJpaRepository.flush();
+
+                userJpaRepository.getByKeycloackIDLock(sub);
+
+            } catch (Exception e) {
+                System.err.println("Error in syncUser: " + e.getMessage());
             }
 
-            // Crea nuovo utente
-            User newUser = new User();
-            newUser.setKeycloackID(sub);
-            newUser.setEmail(email);
-            newUser.setName(username);
-            newUser.setCredit(0);
-            userJpaRepository.save(newUser);
-
-        } catch (Exception e) {
-            System.err.println("Error in syncUser: " + e.getMessage());
-        }
     }
 
     public long getIdBySub(String hostSub) {
@@ -62,10 +76,13 @@ public class UserRepository {
         return user.orElseThrow(()->new UserNotFoundException("User not found"));
     }
 
-    public void addCredit(long userId, double bet) {
-        User user = getUser(userId);
+    public void addCredit(String sub, double amount) {
+        User user = getUserBySub(sub);
         double credit = user.getCredit();
-        user.setCredit(credit+bet);
-        userJpaRepository.save(user);
+        user.setCredit(credit+amount);
+    }
+
+    public boolean existsBySub(String subject) {
+        return userJpaRepository.existsByKeycloackID(subject);
     }
 }

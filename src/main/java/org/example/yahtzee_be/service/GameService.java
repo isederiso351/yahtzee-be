@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,11 +66,11 @@ public class GameService {
     }
 
     @Transactional
-    public void joinGame(String playerSub, long gameId) {
-        User user = userRepository.getUserBySub(playerSub);
+    public void joinGame(String sub, long gameId) {
+        User user = userRepository.getUserBySub(sub);
 
         if(userGameRepository.isUserInGame(user.getId(), gameId)){
-            throw new GameException("User is already in the game");
+            return;
         }
         Game game = gameRepository.getGameForUpdate(gameId);
 
@@ -79,23 +80,11 @@ public class GameService {
         }
 
         double bet = game.getBet();
-        userRepository.removeCredit(user.getId(), bet);
+        user.setCredit(user.getCredit() - bet);
+        System.out.println("rimossi crediti");
         userGameRepository.joinGame(user.getId(), gameId);
 
         eventPublisher.publishEvent(new GameEvent(GameEventType.JOINED,game));
-    }
-
-    @Transactional
-    public void leaveGame(String userSub, long gameId) {
-        long userId = userRepository.getIdBySub(userSub);
-        if(!userGameRepository.isUserInGame(userId, gameId)) {
-            throw new GameException("User is not in the game");
-        }
-
-        double bet = gameRepository.getBet(gameId);
-        userRepository.addCredit(userId, bet);
-
-        userGameRepository.leaveGame(userId, gameId);
     }
 
     @Transactional(readOnly = true)
@@ -123,7 +112,6 @@ public class GameService {
 
         // Cambia lo status del gioco
         gameRepository.updateGameStatus(gameId, GameStatus.IN_PROGRESS);
-
 
         // Inizia il primo tiro di dadi
         self.rollDicesAfterDelay(game, 2000);
@@ -191,7 +179,7 @@ public class GameService {
 
             // Assegna il premio al vincitore
             double totalPot = game.getBet() * userGameRepository.totalCurrentPlayers(game.getId());
-            userRepository.addCredit(winner.getId(), totalPot);
+            userRepository.addCredit(winner.getKeycloackID(), totalPot);
 
             // Invia evento game completed
             eventPublisher.publishEvent(new GameEvent(GameEventType.COMPLETED, game));
