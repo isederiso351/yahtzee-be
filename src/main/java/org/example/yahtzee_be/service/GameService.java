@@ -187,6 +187,7 @@ public class GameService {
     }
 
     private List<User> getPlayersWithHighestScore(long gameId, int rollNumber) {
+
         List<DiceResult> diceResults = diceResultRepository.findByGameIdAndRollNumber(gameId, rollNumber);
 
         int maxValue = diceResults.stream()
@@ -226,16 +227,21 @@ public class GameService {
                         Collectors.toMap(dr -> dr.getUser().getName(), DiceResult::getDiceValue));
                 dto.setCurrentDiceResults(diceResults);
 
-
-                    List<String> activeUsers = getPlayersWithHighestScore(game.getId(), currentRoll).stream().map(User::getName).toList();
+                if(currentRoll==1){
+                    dto.setActivePlayers(dto.getUsers());
+                }else{
+                    List<String> activeUsers = getPlayersWithHighestScore(game.getId(), currentRoll-1).stream().map(User::getName).toList();
                     dto.setActivePlayers(activeUsers);
+                }
+
 
                 // Se il gioco è completato, trova il vincitore
                 if (game.getStatus() == GameStatus.COMPLETED) {
-                    if(dto.getActivePlayers().size() != 1) {
+                    List<User> remaining = getPlayersWithHighestScore(game.getId(), currentRoll);
+                    if(remaining.size() != 1) {
                         throw new GameException("Can't get winner");
                     }
-                    dto.setWinner(dto.getActivePlayers().getFirst());
+                    dto.setWinner(remaining.getFirst().getName());
                 }
             }
         }
