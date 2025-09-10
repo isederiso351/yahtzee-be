@@ -33,12 +33,6 @@ public class GameRepository {
         return gameJpaRepository.getBetById(gameId);
     }
 
-    public Game getGame(long gameId) {
-        Optional<Game> game = gameJpaRepository.getGameById(gameId);
-        if(game.isEmpty())
-            throw new GameNotFoundException("Game not found");
-        return game.get();
-    }
 
     public Page<Game> getGamesByStatus(GameStatus status, Pageable pageable) {
         return gameJpaRepository.findByStatus(status, pageable);
@@ -46,6 +40,11 @@ public class GameRepository {
 
     public int getMaxPlayers(long gameId) {
         return getGame(gameId).getMaxPlayers();
+    }
+
+    public Game getGame(long gameId){
+        Optional<Game> game = gameJpaRepository.getGameById(gameId);
+        return game.orElseThrow(() -> new GameNotFoundException("Game not found"));
     }
 
     public Game getGameForUpdate(long gameId) {

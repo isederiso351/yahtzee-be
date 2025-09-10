@@ -66,12 +66,12 @@ public class GameService {
 
     @Transactional
     public void joinGame(String sub, long gameId) {
-        User user = userRepository.getUserBySub(sub);
+        User user = userRepository.getUserBySubForUpdate(sub);
 
         if(userGameRepository.isUserInGame(user.getId(), gameId)){
             return;
         }
-        Game game = gameRepository.getGameForUpdate(gameId);
+        Game game = gameRepository.getGame(gameId);
 
         int currPlayers = userGameRepository.totalCurrentPlayers(gameId);
         if(currPlayers >= game.getMaxPlayers()) {
@@ -170,6 +170,7 @@ public class GameService {
         if(winnersThisRoll.size() == 1) {
             // Abbiamo un vincitore!
             User winner = winnersThisRoll.getFirst();
+            winner = userRepository.getUserBySubForUpdate(winner.getKeycloackID());
 
             // Completa il gioco
             game = gameRepository.updateGameStatus(game.getId(), GameStatus.COMPLETED);
@@ -182,7 +183,7 @@ public class GameService {
             eventPublisher.publishEvent(new GameEvent(GameEventType.COMPLETED, game));
 
         } else {
-            self.rollDicesAfterDelay(game, 0); // 3 secondi di pausa tra i tiri
+            self.rollDicesAfterDelay(game, 0);
         }
     }
 

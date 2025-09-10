@@ -15,7 +15,6 @@ public interface UserGameJpaRepository extends JpaRepository<UserGame, Long> {
 
     void removeUserGameByUser_IdAndGame_Id(Long userId, Long gameId);
 
-    List<UserGame> getUserGamesByGame_Id(Long gameId);
 
     @Query("SELECT ug.user FROM UserGame ug WHERE ug.game.id = :gameId")
     List<User> getUsersByGameId(@Param("gameId") Long gameId);

@@ -35,10 +35,6 @@ public class UserGameRepository {
         return userGameJpaRepository.countByGame_Id(gameId);
     }
 
-    public void leaveGame(long userId, long gameId) {
-        userGameJpaRepository.removeUserGameByUser_IdAndGame_Id(userId, gameId);
-    }
-
     public List<User> getPlayers(Long gameId) {
         return userGameJpaRepository.getUsersByGameId(gameId);
 

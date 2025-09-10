@@ -20,7 +20,7 @@ public class UserService {
     @Autowired
     private GameProperties gameProperties;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public double getUserCredit(String userSub) {
         return userRepository.getUserBySub(userSub).getCredit();
     }
@@ -29,7 +29,7 @@ public class UserService {
     public void syncUser(Jwt jwt) {
         userRepository.syncUser(jwt);
 
-        User user = userRepository.getUserBySub(jwt.getSubject());
+        User user = userRepository.getUserBySubForUpdate(jwt.getSubject());
         checkFirstBonus(user);
         checkDailyBonus(user);
     }
@@ -44,6 +44,7 @@ public class UserService {
     private void checkDailyBonus(User user) {
         if(user.getLastBonusCredit().isBefore(LocalDateTime.now().minusDays(1))){
             user.setCredit(user.getCredit() + gameProperties.getDailyBonus());
+            user.setLastBonusCredit(LocalDateTime.now());
         }
     }
 }
